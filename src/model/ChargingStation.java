@@ -15,6 +15,15 @@ public class ChargingStation {
         createStation();
     }
 
+    public ChargingStation() {
+
+    }
+
+    public void setStationSize(int stationSize) {
+        this.stationSize = stationSize;
+        createStation();
+    }
+
     private void createStation() {
         sockets = new ArrayList<>();
         for (int i = 0; i < stationSize; i++) {
@@ -28,33 +37,34 @@ public class ChargingStation {
         int availableSize = 0;
         int freesockets[] = findFreeSockets();
 
-        for(int i = 0; i < freesockets.length;  i++){
-            if(freesockets[i] == 1){
+        for (int i = 0; i < freesockets.length; i++) {
+            if (freesockets[i] == 1) {
                 availableSize++;
-                if(availableSize == size){
-                    for(int j = i; j > i - size; j--){
+                if (availableSize == size) {
+                    for (int j = i; j > i - size; j--) {
                         sockets.get(j).chargeRobot(r);
 
                     }
                     isCharging = true;
                 }
-            }else availableSize = 0;
+//                else if()//TERAZ TRZEBA ZROBIC TAK ZE MOZE SIE LADOWAC NA SKRAJNYCH I W SRODKU!!!!
+            } else availableSize = 0;
         }
 
-        if(!isCharging){
-            if (freesockets[0] == 1){
+        if (!isCharging) {
+            if (freesockets[0] == 1) {
                 sockets.get(0).chargeRobot(r);
                 isCharging = true;
-            }
-            if(!isCharging){
-                if (freesockets[freesockets.length-1] == 1){
-                    sockets.get(freesockets.length-1).chargeRobot(r);
-                    isCharging = true;
-                }
+            } else if (freesockets[freesockets.length - 1] == 1) {
+                sockets.get(freesockets.length - 1).chargeRobot(r);
+                isCharging = true;
             }
         }
 
+        if (isCharging) r.setRobotState(RobotState.CHARGING);
+        else r.setRobotState(RobotState.WAITING);
     }
+
 
     public int[] findFreeSockets() {
         int freeSockets[] = new int[stationSize];
@@ -64,8 +74,24 @@ public class ChargingStation {
                 freeSockets[i] = 1;
             } else freeSockets[i] = 0;
         }
+
         return freeSockets;
     }
+
+    public String toString() {
+        String robots = "";
+        String places = "";
+        String socketNames = "";
+        for (ChargingSocket socket : sockets) {
+            robots = robots + socket.whoIsHere() + "  ";
+            places = places + "_" + "  ";
+            socketNames = socketNames + socket.getSocketName() + "  ";
+        }
+
+
+        return robots + "\n" + places + "\n" + socketNames;
+    }
+
 
 }
 

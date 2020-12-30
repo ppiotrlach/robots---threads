@@ -4,7 +4,7 @@ public class Robot extends Thread {
 
     private String name;
     private int batterySize;
-    private int batteryCondition;
+    private int batteryCondition = 100;
     private Object lock;
     public ChargingStation chargingStation;
     private RobotState robotState;
@@ -13,45 +13,68 @@ public class Robot extends Thread {
         this.name = name;
         this.batterySize = batterySize;
         this.chargingStation = chargingStation;
+        setRobotState(RobotState.WORKING);
     }
 
-    public void setRobotState(RobotState robotState){
+    public void setRobotState(RobotState robotState) {
         this.robotState = robotState;
     }
 
     @Override
     public void run() {
-        while(true){
-            setRobotState(RobotState.WORKING);
+        while (true) {
             work();
-            charge(chargingStation);
         }
     }
 
-    public void work(){
-        batteryCondition = 100*batterySize;
-        for (int i = 0; i < 100*batterySize; i++) {
-            System.out.println(name + " = " + batteryCondition/batterySize + "%");
+    public void work() {
+        setRobotState(RobotState.WORKING);
+        for (int i = 0; i < 100 * batterySize; i++) {
+            if(batteryCondition <= 0) break;
+            System.out.println(name + " = " + batteryCondition / batterySize + "%");
             batteryCondition--;
+            try {
+                sleep(10);
+            } catch (InterruptedException e) {
+                System.out.println(name + " INTERRRRUPTED");
+            }
         }
+
+        charge(chargingStation);
     }
 
-    public void charge(ChargingStation chargingStation){
+    public void charge(ChargingStation chargingStation) {
         chargingStation.charge(this);
     }
 
-    public String getRobotName(){
+    public String getRobotName() {
         return name;
     }
 
-    public int getBatterySize(){
+    public int getBatterySize() {
         return batterySize;
     }
 
-    public Object getLock(){
+    public Object getLock() {
         return lock;
     }
 
+    public String toString() {
+        String description = "               " + name + "      " + batterySize + "               " + batteryCondition / batterySize + "%         " + robotState;
+
+        return description;
+    }
 
 
+    public void addBatteryCondition(int i) {
+        this.batteryCondition += i;
+    }
+
+    public int getBatteryCondition() {
+        return batteryCondition;
+    }
+
+    public int getFullBatteryCondition(){
+        return 100*batterySize;
+    }
 }
